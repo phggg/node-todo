@@ -1,5 +1,7 @@
+#!/usr/bin/env node
 const program = require('commander')
 const api = require('./index')
+const pkg = require('./package.json')
 
 if(process.argv.length === 2) {
   // 说明用户直接运行 node cli.js
@@ -7,9 +9,7 @@ if(process.argv.length === 2) {
 }
 
 program
-  .option('-x, --xxx', 'show x')
-  .option('-s, --small', 'small pizza size')
-  .option('-p, --pizza-type <type>', 'flavour of pizza');
+  .version(pkg.version)
 program
   .command('add <taskName>')
   .description('添加一个任务')

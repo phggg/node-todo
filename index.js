@@ -1,5 +1,12 @@
 const inquirer = require('inquirer')
 const db = require('./db')
+const ACTION_CHOICE = [
+  {name: '退出', value: 'quit'},
+  {name: '已完成', value: 'markAsDone'},
+  {name: '未完成', value: 'markAsUnDone'},
+  {name: '修改任务', value: 'updateTitle'},
+  {name: '删除', value: 'remove'},
+]
 
 module.exports.add = (title) => {
   // 1. 读取之前的任务
@@ -45,7 +52,72 @@ module.exports.clear = async () => {
 
 module.exports.showAll = async () => {
   const list = db.read()
-  // list.map((task, index) => console.log(`${task.done ? '[x]' : '[_]'} ${index + 1} - ${task.title}`))
+  printTasks(list)
+}
+
+const markAsDone = (list, index) => {
+  list[index].done = true
+  db.write(list)
+}
+
+const markAsUnDone = (list, index) => {
+  list[index].done = false
+  db.write(list)
+}
+
+const updateTitle = (list, index) => {
+  inquirer
+    .prompt({
+      type: 'input',
+      name: 'title',
+      message: '新的标题',
+      default: list[index].title
+    })
+    .then(answerTitle => {
+      list[index].title = answerTitle.title
+      db.write(list)
+    })
+}
+
+const removeTask = (list, index) => {
+  list.splice(index,1)
+  db.write(list)
+}
+
+const askForAction = (list, index) => {
+  const ACTIONS = {
+    markAsDone,
+    markAsUnDone,
+    updateTitle,
+    removeTask
+  }
+  inquirer
+    .prompt({
+      type: 'list',
+      name: 'action',
+      message: '请选择操作',
+      choices: ACTION_CHOICE
+    })
+    .then(answerChild => {
+      const action = ACTIONS[answerChild.action]
+      action && action(list, index)
+    })
+}
+
+const asiForCreateTask = (list) => {
+  inquirer
+    .prompt({
+      type: 'input',
+      name: 'title',
+      message: '输入任务标题',
+    })
+    .then(answerTitle => {
+      list.push({title: answerTitle.title, done: false})
+      db.write(list)
+    })
+}
+
+const printTasks = (list) => {
   inquirer
     .prompt({
       type: 'list',
@@ -63,34 +135,11 @@ module.exports.showAll = async () => {
     .then((answer) => {
       const index = parseInt(answer.index)
       if(index >= 0) {
-        inquirer.prompt({
-          type: 'list',
-          name: 'action',
-          message: '请选择操作',
-          choices: [
-            {name: '退出', value: 'quit'},
-            {name: '已完成', value: 'markAsDone'},
-            {name: '未完成', value: 'markAsUnDone'},
-            {name: '修改任务', value: 'updateTitle'},
-            {name: '删除', value: 'remove'},
-          ]
-        })
-          .then(answerChild => {
-            switch (answerChild.action) {
-              case 'markAsDone':
-                break;
-              case 'markAsUnDone':
-                break;
-              case 'updateTitle':
-                break;
-              case 'remove':
-                break;
-            }
-          })
+        askForAction(list, index)
       }
       if(index === -2) {
         // 创建任务
-        console.log('创建任务')
+        asiForCreateTask(list)
       }
-    });
+    })
 }
