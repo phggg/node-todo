@@ -1,0 +1,10 @@
+{
+  "name": "node-std-todo",
+  "version": "0.0.1",
+  "main": "cli.js",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^8.0.0",
+    "inquirer": "^8.1.1"
+  }
+}
