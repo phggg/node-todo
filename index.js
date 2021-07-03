@@ -5,7 +5,7 @@ const ACTION_CHOICE = [
   {name: '已完成', value: 'markAsDone'},
   {name: '未完成', value: 'markAsUnDone'},
   {name: '修改任务', value: 'updateTitle'},
-  {name: '删除', value: 'remove'},
+  {name: '删除', value: 'removeTask'},
 ]
 
 module.exports.add = (title) => {
